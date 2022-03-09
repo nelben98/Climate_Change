@@ -1,5 +1,8 @@
 # Who runs the world? - Oil
 
+
+* See the Markdown_cc.Rmd for an extra plot using Shiny*
+ 
 As the world draws plans to phase out oil and coal, it might seem that we've reached the tipping point where polluting fuels are facing a steep decline. But despite the efforts to switch towards renewables and the ESG revolution, Europe still largely depends on oil, gas and coal both as energy and electricity production means.
 
 The IPCC report signaled a few weeks back how the world's rise in temperature was propelling worse-than-expected consequences, not only with relation to  nature but also from a socio-economic standpoint, affecting communities more severely than expected.
