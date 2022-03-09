@@ -20,7 +20,7 @@ Electricity is not the only concerning factor in terms of cleaning pollution - i
 
 Comparing production, nuclear and coal are mainly used in the electricity production, however fossil fuels still run the majority of transports in Europe and natural gas still heats our homes. The energy transition will not only have to be focused in cleaning the grid but most critically should be sector wide.
 
-![Image 2](https://github.com/nelben98/Climate_Change/blob/master/Plots/Cum_ele_total_ele.png)
+![Image 2](https://github.com/nelben98/Climate_Change/blob/master/Plots/Cum_energy_total_ele.png)
 
 Some key elements stand out in the make-up of energy production in these economies, for instance whilst Nuclear is seen as a valuable resource in France, Italy has historically shun it. Likewise, Germany has a very small nuclear production and mainly works with gas and oil.
 
