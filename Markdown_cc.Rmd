@@ -1,6 +1,7 @@
 ---
 title: "Climate_change_proj"
-output: pdf_document
+output: html_document
+runtime: shiny
 ---
 
 ```{r setup, include=FALSE}
@@ -16,6 +17,7 @@ library(cols4all)
 library(maps)
 library(mapproj)
 library(ftplottools)
+library(shiny)
 ```
 
 
@@ -167,23 +169,32 @@ elec_prod_clean<-broken_ele_prod %>%
 ### Electricity and energy consumption
 
 plot<-ggplot(elec_prod_clean,aes(x=TIME_PERIOD, y=Consumed/10**6, fill=Fuel)) + 
-  geom_area(alpha=0.6 , size=1, colour="black") +
-  labs(x="Year",y=expression(paste('Energy consumed (',10^6,' GWE)')),title="Cummulative energy production (breaking down electricity)") + theme_bw() +scale_fill_brewer(palette = "RdYlBu")
+            geom_area(alpha=0.6 , size=1, colour="black") +
+            labs(x="Year",
+                 y=expression(paste('Energy consumed (',10^6,' GWE)')),
+                 title="Cummulative energy production (breaking down electricity)") + 
+            theme_bw() +
+            scale_fill_brewer(palette = "RdYlBu")
 
-plot + annotate("label",x = c(rep(as.Date("2020-01-01","%Y-%m-%d"),6)),
-   y = c(9.8,6.5,4.5,2.5,1,0.2),
-   label = paste(round(preserving_orders$prop.x,3)*100,"%"), color="black", 
-           size=2.5 , fontface="bold") +
-  annotate("label",x = c(rep(as.Date("2017-01-01","%Y-%m-%d"),6)),
-   y = c(10.2,6.8,4.7,2.2,1,0.2),
-   label = paste(sort(round(prop_elec_2017$prop,3)*100,decreasing=TRUE),"%"), color="black", 
-           size=2.5 , fontface="bold")
+plot + annotate("label",
+                x = c(rep(as.Date("2020-01-01","%Y-%m-%d"),6)),
+                y = c(9.8,6.5,4.5,2.5,1,0.2),
+                label = paste(round(preserving_orders$prop.x,3)*100,"%"), 
+                color="black", 
+                size=2.5 , 
+                fontface="bold") +
+  annotate("label",
+           x = c(rep(as.Date("2017-01-01","%Y-%m-%d"),6)),
+           y = c(10.2,6.8,4.7,2.2,1,0.2),
+           label = paste(sort(round(prop_elec_2017$prop,3)*100,decreasing=TRUE),"%"), 
+           color="black", 
+           size=2.5 , 
+           fontface="bold")
 ```
 
 
 
 ```{r With electricity as factor, warning=FALSE, message=FALSE, echo= FALSE}
-
 energy_w_elec<- data.frame(data_prod) %>% 
   filter(geo== "EU27_2020",Fuel!="Total") %>% 
   select(-geo)
@@ -218,17 +229,82 @@ prod_clean<-energy_w_elec %>%
 ### Energy consumption + electricity: 
 
 plot_2<-ggplot(prod_clean,aes(x=TIME_PERIOD, y=Consumed/10**6, fill=Fuel)) + 
-  geom_area(alpha=0.6 , size=1, colour="black") + 
-  labs(x="Year",y=expression(paste('Energy consumed (',10^6,' GWE)')),title="Cummulative energy production inc. electricity") + theme_bw() +scale_fill_brewer(palette = "RdYlBu") + theme(axis.text.x = element_text(angle = 45,hjust=1))
+              geom_area(alpha=0.6 , size=1, colour="black") + 
+            labs(x="Year",
+                 y=expression(paste('Energy consumed (',10^6,' GWE)')),
+                 title="Cummulative energy production inc. electricity") + 
+            theme_bw() +
+            scale_fill_brewer(palette = "RdYlBu") + 
+            theme(axis.text.x = element_text(angle = 45,hjust=1),panel.grid = element_blank())
 
 plot_2 + annotate("label",x = c(rep(as.Date("2020-01-01","%Y-%m-%d"),6)),
-   y = c(9,5.2,3,1.5,0.6,0),
-   label = paste(round(preserving_orders$prop.x,3)*100,"%"), color="black", 
-           size=2.5 , fontface="bold") +
+                   y = c(9,5.2,3,1.5,0.6,0),
+                   label = paste(round(preserving_orders$prop.x,3)*100,"%"), color="black", 
+                    size=2.5 , fontface="bold") +
   annotate("label",x = c(rep(as.Date("2011-01-01","%Y-%m-%d"),6)),
-   y = c(9,5.2,3,1.5,0.6,0),
-   label = paste(sort(round(energy_at_2017$prop,3)*100,decreasing=TRUE),"%"), color="black", 
-           size=2.5 , fontface="bold")
+                   y = c(9,5.2,3,1.5,0.6,0),
+                   label = paste(sort(round(preserving_orders$prop.y,3)*100,decreasing=TRUE),"%"), color="black", 
+                   size=2.5 , fontface="bold")
+```
+
+```{r Electricity as factor with shiny}
+countries <- dictionary_countries %>% 
+            transmute(Country=ifelse(Country=="United Kingdom (Convention)","United 
+                                  Kingdom",Country),
+                      geo=ifelse(Country_codes=="GE","EL",Country_codes),
+                      geo=ifelse(Country_codes=="EUX","EU27_2020",Country_codes))
+
+european_data<-right_join(data_prod,countries,by="geo")
+
+server <- function(input, output) {
+  
+  prod_clean_shiny<- reactive({data.frame(european_data) %>% 
+  filter(Country== input$region,!Fuel%in%c("Total","Nuclear")) %>% 
+  select(-c(geo,Country))%>%
+  group_by(TIME_PERIOD,Fuel) %>%
+  summarise(Consumed = sum(OBS_VALUE))%>%
+      arrange(desc(Consumed)) %>%  
+  mutate( Fuel=factor(Fuel,levels=Fuel),
+          Fuel = fct_collapse(Fuel,"Other"=c("Non-ren waste","Other","Peat","Heat")))%>%
+  group_by(TIME_PERIOD,Fuel) %>%
+  summarise(Consumed = sum(Consumed)) %>% ungroup(TIME_PERIOD,Fuel)
+    })
+
+  # Fill in the spot we created for a plot
+  output$energyplot <- renderPlot({
+    # Render a barplot
+    ggplot(prod_clean_shiny(),aes(x=TIME_PERIOD, y=Consumed/10**6, fill=Fuel)) + 
+              geom_area(alpha=0.6 , size=1, colour="black") + 
+            labs(x="Year",
+                 y=expression(paste('Energy consumed (',10^6,' GWE)')),
+                 title="Cummulative energy production inc. electricity") + 
+            theme_bw() +
+            scale_fill_brewer(palette = "RdYlBu") + 
+            theme(axis.text.x = element_text(angle = 45,hjust=1),panel.grid = element_blank())
+  })
+}
+
+ui <- fluidPage(    
+  # Give the page a title
+  titlePanel("Energy production by region"),
+  # Generate a row with a sidebar
+  sidebarLayout(      
+    # Define the sidebar with one input
+    sidebarPanel(
+      selectInput("region", "Region:", 
+                  choices=unique(european_data$Country)),
+      hr(),
+      helpText("Data obtained from ()")
+    ),
+    # Create a spot for the barplot
+    mainPanel(
+      plotOutput("energyplot")  
+    )
+    
+  )
+)
+shinyApp(ui,server)
+
 ```
 
 
@@ -268,9 +344,10 @@ p <- ggplot(main_energy_geo, aes(geo, Consumed/1000, label = geo, fill = Fuel)) 
      geom_bar(stat="identity") + 
      facet_wrap( ~ format(TIME_PERIOD,"%Y"), scales="free")+
      labs(x="Year and country",
-           y=expression(paste('Energy consumed (',10^6,' GWE)')),
-           title="Energy production") +
-    theme_bw() + scale_y_continuous(limits=c(0,2500))
+          y=expression(paste('Energy consumed (',10^6,' GWE)')),
+          title="Energy production") +
+    theme_bw() + 
+    scale_y_continuous(limits=c(0,2500))
 
 p + scale_fill_brewer(palette = "RdYlBu") + theme(axis.text.x = element_text(angle = 45,hjust=1))
 
@@ -345,7 +422,9 @@ ggplot(em_sec_year,aes(x=Year,y=Consumed))+geom_col()+theme(axis.text.x = elemen
 em_sec_sec<-data.frame(Consumed=tapply(em_sector$emissions,list(em_sector$Sector_name), function(x) {sum(x,na.rm=TRUE)}))
 em_sec_sec<-rownames_to_column(em_sec_sec,"Sectors")
 
-ggplot(em_sec_sec,aes(x=Sectors,y=Consumed))+geom_col()+theme(axis.text.x = element_text(angle = 45,hjust=1))
+ggplot(em_sec_sec,aes(x=Sectors,y=Consumed))+
+  geom_col()+
+  theme(axis.text.x = element_text(angle = 45,hjust=1),panel.grid = element_blank())
 
 
 #Main charts to create::
@@ -371,10 +450,17 @@ sec_energy_prod<- em_sector %>% filter(Sector_name %in% c("1.A.1 - Energy Indust
 
 levels(sec_energy_prod$Sector_name)=c("Energy industry","Manufacturing & construction","Transport","Other","Industrial processes","Agriculture")
 
-plot_3.1<- ggplot(sec_energy_prod %>% filter(Country_code=="EUA") ,aes(x= as.integer(Year), y=Emissions/1000, group=Sector_name,col=Sector_name)) + 
-  geom_line() + geom_point(alpha=.5) +  
-  labs(x="Years",y=expression(paste('Emissions (',1000,'s Gigagrams)')),title="Cummulative emissions by sector",
-       col="Sectors") + theme_bw() + theme(axis.text.x = element_text(angle = 45,hjust=1))
+plot_3.1<- ggplot(sec_energy_prod %>% filter(Country_code=="EUA") ,
+                  aes(x= as.integer(Year), y=Emissions/1000, group=Sector_name,col=Sector_name)) + 
+                  geom_line() + 
+                  geom_point(alpha=.5) +  
+                  labs(x="Years",
+                       y=expression(paste('Emissions (',1000,'s Gigagrams)')),
+                       title="Cummulative emissions by sector",
+                       col="Sectors") + 
+                  theme_bw() + 
+                  theme(axis.text.x = element_text(angle = 45,hjust=1), panel.grid = element_blank())+
+                  ylim(0,3500)
 plot_3.1
 ```
 
@@ -398,16 +484,25 @@ sec_energy_transport<- em_sector %>% filter(Sector_name %in% c("1.A.3.a - Domest
                                                         "1.A.3.d - Domestic Navigation",
                                                         "1.A.3.a - Domestic Aviation",
                                                         "1.A.3.e - Other Transportation"))
-                           ) %>% group_by(Country_code,Year,Sector_name) %>% summarise(Emissions = sum(emissions)) %>%  
+                           ) %>% group_by(Country_code,Year,Sector_name) %>% 
+                                 summarise(Emissions = sum(emissions)) %>%  
                                  ungroup(Country_code,Year,Sector_name)
 
 levels(sec_energy_transport$Sector_name)=c("Other transports","Cars","Light duty trucks",
                                             "Heavy duty trucks and buses")
 
-plot_3.2<-ggplot(sec_energy_transport %>% filter(Country_code=="EUA") ,aes(x=as.integer(Year), y=Emissions/1000, group=Sector_name,col=Sector_name)) +
-  geom_line() + geom_point(alpha=.5)+
-  labs(x="Years",y=expression(paste('Emissions (',1000,'s Gigagrams)')),title="European Cummulative emissions by transport",
-       col="Sectors") + theme_bw() + theme(axis.text.x = element_text(angle = 45,hjust=1))
+plot_3.2<-ggplot(sec_energy_transport %>% filter(Country_code=="EUA") ,
+                 aes(x=as.integer(Year), y=Emissions/1000, group=Sector_name,col=Sector_name)) +
+                 geom_line() +
+                 geom_point(alpha=.5)+
+                 labs(x="Years",
+                     y=expression(paste('Emissions (',1000,'s Gigagrams)')),
+                     title="European Cummulative emissions by transport", 
+                     col="Sectors") + 
+                 theme_bw() + 
+                 theme(axis.text.x = element_text(angle = 45,hjust=1),
+                       panel.grid = element_blank())+
+            ylim(0, max(sec_energy_transport$Emissions/1000,na.rm=TRUE)+100)
 
 plot_3.2
 
@@ -439,11 +534,19 @@ sec_energy_residential<- em_sector %>% filter(Sector_name %in% c("1.A.4.a - Comm
 levels(sec_energy_residential$Sector_name)=c("Industry","Transport","Residential/Commercial",
                                             "Agriculture")
 
-plot_3.3 <- ggplot(sec_energy_residential %>%
-                 filter(Country_code=="EUA") ,aes(x=as.integer(Year), y=Emissions/1000, group=Sector_name,col=Sector_name)) +
-  geom_line() + geom_point(alpha=.5)+
-   theme_bw() + theme(axis.text.x = element_text(angle = 45,hjust=1)) +labs(x="Years",y=expression(paste('Emissions (',1000,'s Gigagrams)')),title="European Cummulative emissions by sectors",
-       col="Sectors")
+plot_3.3 <- ggplot(sec_energy_residential %>% filter(Country_code=="EUA") ,
+                 aes(x=as.integer(Year), y=Emissions/1000, group=Sector_name,col=Sector_name)) +
+                 geom_line() + 
+                 geom_point(alpha=.5)+
+                 theme_bw() + 
+                 theme(axis.text.x = element_text(angle = 45,hjust=1),
+                       panel.grid = element_blank()) +
+                 labs(x="Years",
+                      y=expression(paste('Emissions (',1000,'s Gigagrams)')),
+                      title="European Cummulative emissions by sectors",
+                      col="Sectors")+
+                  ylim(0, 2750)
+                       
 
 plot_3.3
 
@@ -456,19 +559,25 @@ plot_3.3
 #bring the data for the map
 world = map_data('world')  %>% mutate(region = ifelse(region=="UK","United Kingdom",region))
 
-europe = c((dictionary_countries %>% mutate(Country=ifelse(Country=="United Kingdom (Convention)","United Kingdom",Country),Country_codes=ifelse(Country_codes=="GE","EL",Country_codes)) %>% filter(Country != c("EU-27+UK","EU (KP)","EU-27")))$Country)
+europe = c((dictionary_countries %>% 
+            mutate(Country=ifelse(Country=="United Kingdom (Convention)","United 
+                                  Kingdom",Country),Country_codes=ifelse(Country_codes=="GE","EL",Country_codes)) %>% 
+            filter(Country != c("EU-27+UK","EU (KP)","EU-27")))$Country)
 
-europe_codes = c((dictionary_countries %>% mutate(Country=ifelse(Country=="United Kingdom (Convention)","United Kingdom",Country),Country_codes=ifelse(Country_codes=="GE","EL",Country_codes)) %>% filter(Country != c("EU-27+UK","EU (KP)","EU-27")))$Country_codes)
+europe_codes = c((dictionary_countries %>% 
+            mutate(Country=ifelse(Country=="United Kingdom (Convention)","United 
+                              Kingdom",Country),Country_codes=ifelse(Country_codes=="GE","EL",Country_codes)) %>% 
+              filter(Country != c("EU-27+UK","EU (KP)","EU-27")))$Country_codes)
 
 
 # Extrapolate the data of the UK - repeat last value:
-a<-data_prod %>% mutate(Energy=OBS_VALUE/10^4) %>% 
+a<-data_prod %>% mutate(Energy=OBS_VALUE/10^3) %>% 
                 filter(Fuel=="Total",TIME_PERIOD=="2020-01-01", geo %in% europe_codes) %>% 
                 select(-OBS_VALUE)
 
 b<-data.frame(Fuel="Total",geo="UK",TIME_PERIOD="2020-01-01",Energy = data_prod %>% 
                 filter(geo=="UK",TIME_PERIOD=="2019-01-01",Fuel=="Total")%>% 
-                mutate(Energy=OBS_VALUE/10^4)%>% 
+                mutate(Energy=OBS_VALUE/10^3)%>% 
                 select(Energy))
 
 # bring the data for the filling, energy and pollution data:
@@ -479,13 +588,19 @@ total_energy<- left_join(data_prod_uk, dictionary_countries %>%
                            transmute(geo=Country_codes,Country=Country),by="geo") %>% 
                           select(-geo)
 
-fill_pol_en<-left_join(eur_em  %>% mutate(Country = Geographic_entity, Pollution = eur_em$'2020' ) %>% filter( Country != "EU-27+UK",Country != "EU (KP)",Country != "EU-27")%>% select(Country,Pollution),total_energy,by= "Country") %>%  transmute(Country,Pollution=Pollution/Energy,region=Country,Fuel,year=TIME_PERIOD,Pol=Pollution,En=Energy)
+fill_pol_en<-left_join(eur_em  %>% 
+                          mutate(Country = Geographic_entity, Pollution = eur_em$'2020' ) %>% 
+                          filter( Country != "EU-27+UK",Country != "EU (KP)",Country != "EU-27")%>% 
+                          select(Country,Pollution),
+                  total_energy, by= "Country") %>%   
+              transmute(Country,Pollution=Pollution/Energy,region=Country,Fuel,year=TIME_PERIOD,Pol=Pollution,En=Energy)
 
 ```
 
 
 ```{r plotting, warning=FALSE, message=FALSE, echo=FALSE}
-eur = world[world$region %in% europe, ] 
+eur = world[world$region %in% c(fill_pol_en$region,"Iceland","Norway","Turkey","Ukraine","Moldova","Belarus"), ] 
+eur <-eur %>% filter(!subregion %in%  c("Jan Mayen","Svalbard"))
 
 clear_plot_background = theme(
   axis.text = element_blank(),
@@ -505,20 +620,25 @@ eur_em_map = eur %>%
 
 
 map_plot + geom_polygon(data = eur_em_map,  #plot bear population data
-               aes(x = long, y = lat, 
-                   group = group, fill = Pollution), 
+               aes(x = long, 
+                   y = lat, 
+                   group = group, 
+                   fill = Pollution), 
                colour = 'white') +
   geom_polygon(colour = 'black', fill = NA) +  #plot country outlines
-  scale_fill_viridis() +
-  ft_theme()+
+  scale_fill_viridis(limits = c(0,0.4), breaks = c(0, 0.1, 0.2, 0.3, 0.4),
+    guide = guide_colourbar(nbin = 100, draw.ulim = FALSE, draw.llim = FALSE))+
+  ft_theme()+ 
   theme(
   axis.text = element_blank(),
   axis.ticks = element_blank(),
   panel.grid = element_blank(),
-  axis.title = element_blank())
+  axis.title = element_blank()) +
+  labs(x="Years",
+       y=expression(paste('Emissions (',1000,'s Gigagrams)')),
+       title="European Cummulative emissions by sectors",
+       fill=expression(paste("Pollution/Energy (MTC",O[2],"/TWE)")))
   
 
+
 ```
-
-
-# 4- FUTURE See the car industry, which is one of the biggest polluters, and see energy investment growth by subtype.
