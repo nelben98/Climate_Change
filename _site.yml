@@ -1,0 +1,10 @@
+name: "Nel"
+output_dir: "docs"
+navbar:
+  title: "Nel's page"
+  left:
+  - text: "Climate Change Project"
+   href: Markdown_cc.html
+output:
+  html_document:
+ theme: cosmo
