@@ -1,6 +1,5 @@
 ---
 title: "European study of emissions and energy generation"
-output: html_document
 runtime: shiny
 ---
 
