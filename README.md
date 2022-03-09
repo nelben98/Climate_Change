@@ -13,16 +13,14 @@ The conflict in Ukraine not only is leading to fossil fuel price rise but possib
 As gas and oil prices reach historic maxima, Europe is most likely to look back into their own grid and energy supply structures and hopefully speed up investments in fuel alternatives.
 
 
-![Image 1]
-
-![Image 2]
+![Image 1](https://github.com/nelben98/Climate_Change/blob/master/Plots/Cum_energy_total_noele.png)
 
 
 Electricity is not the only concerning factor in terms of cleaning pollution - it only accounts for a quarter of all energy consumed while petrol, gas and coal make up for the majority of production.
 
 Comparing production, nuclear and coal are mainly used in the electricity production, however fossil fuels still run the majority of transports in Europe and natural gas still heats our homes. The energy transition will not only have to be focused in cleaning the grid but most critically should be sector wide.
 
-![Plot 3]
+![Image 2](https://github.com/nelben98/Climate_Change/blob/master/Plots/Cum_ele_total_ele.png)
 
 Some key elements stand out in the make-up of energy production in these economies, for instance whilst Nuclear is seen as a valuable resource in France, Italy has historically shun it. Likewise, Germany has a very small nuclear production and mainly works with gas and oil.
 
@@ -32,9 +30,7 @@ Overall, the lack of growth in either Nuclear nor renewables in the European eco
 
 - Production of the 5 largest Euro countries by GDP - Germany, France, Italy, Spain and Poland
 
-![Plot 4]
-
-
+![Plot 4](https://github.com/nelben98/Climate_Change/blob/master/Plots/Energy_top5.png)
 
 An encouraging factor is the efficiency gains seemingly happening in the energy supply sector, where despite providing growing amounts of energy the total emissions recorded have been steadily falling for the last 10 years.
 
@@ -48,9 +44,9 @@ In the general polluting picture, industry is still the largest polluter - not c
 
 Far from net zero, the slow decline in emissions can still be seen due to economic shocks more than real change in drive towards cleaner resources. And that is in Europe, which has been said to champion the movement towards stopping climate change.
 
-![plot 5.1]
-![plot 5.2]
-![plot 5.3]
+![plot 5.1](https://github.com/nelben98/Climate_Change/blob/master/Plots/emiss_sec.png)
+![plot 5.2](https://github.com/nelben98/Climate_Change/blob/master/Plots/emis_transport.png)
+![plot 5.3](https://github.com/nelben98/Climate_Change/blob/master/Plots/emis_sectors.png)
 
 Country wide, the relative pollution compared to total energy generation is quite uniform across countries, with eastern european countries lagging slightly behind, mainly through their highly polluting coal and oil intensive practices. 
 
@@ -58,7 +54,7 @@ Ireland too is the European country which In a stark manner is performing worse 
 
 Northern-european countries, which have typically been ahead of the curve in socio-economic advances and equality, are equally ahead in terms of their relative pollution to gigawatt production, thanks mainly to the large hydroelectric resources which mainly suffice to power their sparsely populated countries.
 
-![map](https://github.com/nelben98/Climate_Change/tree/master/Plots/map.png)
+![map](https://github.com/nelben98/Climate_Change/blob/master/Plots/map.png)
 
 While pacts and politicians seem hopeful and promise to achieve the deadlines of net zero in the next 20 years, the current situation of the energy grid and energy production remains clearly unbalanced towards fossil fuels.
 
