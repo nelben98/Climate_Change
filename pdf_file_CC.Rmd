@@ -1,7 +1,6 @@
 ---
 title: "European study of emissions and energy generation"
-output: html_document
-runtime: shiny
+output: pdf_document
 ---
 
 ```{r setup, include=FALSE}
@@ -279,67 +278,6 @@ Some key elements stand out in the make-up of energy production in these economi
 The northern countries, Finland and Sweden generate the most proportion of their energy from renewables out of all European countries. Although no data is available in the European databases, Norway similarly has a greener energy mix to their neighboring countries.
 
 Overall, the lack of growth in either Nuclear nor renewables in the European economies in the recent years, creates a concerning scenario about the real extend to which net zero by 2050 can be reached.
-
-```{r Electricity as factor with shiny, echo=FALSE}
-countries <- dictionary_countries %>% 
-            transmute(Country=ifelse(Country=="United Kingdom (Convention)","United 
-                                  Kingdom",Country),
-                      geo=ifelse(Country_codes=="GE","EL",Country_codes),
-                      geo=ifelse(Country_codes=="EUX","EU27_2020",Country_codes))
-
-european_data<-right_join(data_prod,countries,by="geo")
-
-server <- function(input, output) {
-  
-  prod_clean_shiny<- reactive({data.frame(european_data) %>% 
-  filter(Country== input$region,!Fuel%in%c("Total","Nuclear")) %>% 
-  select(-c(geo,Country))%>%
-  group_by(TIME_PERIOD,Fuel) %>%
-  summarise(Consumed = sum(OBS_VALUE))%>%
-      arrange(desc(Consumed)) %>%  
-  mutate( Fuel=factor(Fuel,levels=Fuel),
-          Fuel = fct_collapse(Fuel,"Other"=c("Non-ren waste","Other","Peat","Heat")))%>%
-  group_by(TIME_PERIOD,Fuel) %>%
-  summarise(Consumed = sum(Consumed)) %>% ungroup(TIME_PERIOD,Fuel)
-    })
-
-  # Fill in the spot we created for a plot
-  output$energyplot <- renderPlot({
-    # Render a barplot
-    ggplot(prod_clean_shiny(),aes(x=TIME_PERIOD, y=Consumed/10**6, fill=Fuel)) + 
-              geom_area(alpha=0.6 , size=1, colour="black") + 
-            labs(x="Year",
-                 y=expression(paste('Energy consumed (',10^6,' GWE)')),
-                 title="Cummulative energy production inc. electricity") + 
-            theme_bw() +
-            scale_fill_brewer(palette = "RdYlBu") + 
-            theme(axis.text.x = element_text(angle = 45,hjust=1),panel.grid = element_blank())
-  })
-}
-
-ui <- fluidPage(    
-  # Give the page a title
-  titlePanel("Energy production by region"),
-  # Generate a row with a sidebar
-  sidebarLayout(      
-    # Define the sidebar with one input
-    sidebarPanel(
-      selectInput("region", "Region:", 
-                  choices=unique(european_data$Country)),
-      hr(),
-      helpText("Data obtained from ()")
-    ),
-    # Create a spot for the barplot
-    mainPanel(
-      plotOutput("energyplot")  
-    )
-    
-  )
-)
-shinyApp(ui,server)
-
-```
-
 
 ```{r, message=FALSE, include=FALSE}
 ## Only electricity - use shiny to extend by country and year::
