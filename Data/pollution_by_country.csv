@@ -1,0 +1,26 @@
+ID,Value,Country,Carbon Dioxide,PM2.5 Mean,Deaths Attributable to Air Pollution,Forest Area,Protected Area,Waste,Drinking Water Quality
+Austria,4.5,Austria,7.19t,13,34,46.9,28.4,565.7kg,Very Good
+Belgium,4.6,Belgium,8.11t,13,30,22.6,24.6,418.8kg,Very Good
+Czech Republic,5.3,Czech Republic,9.6t,16,58,34.5,22.2,337.4kg,Very Good
+Denmark,4.5,Denmark,5.84t,10,20,14.6,17.9,779.1kg,Very Good
+Estonia,4.4,Estonia,12.44t,7,24,52.7,19.5,376.7kg,Very Good
+Finland,3.5,Finland,8.28t,7,6,73.1,14.2,503.0kg,Very Good
+France,3.5,France,4.38t,12,17,31,33.2,512.5kg,Very Good
+Germany,4.5,Germany,8.88t,12,33,32.7,38.8,630.3kg,Very Good
+Greece,4.8,Greece,5.85t,16,45,31.5,11,478.7kg,Very Good
+Hungary,5.2,Hungary,4.48t,16,82,22.9,22.6,381.5kg,Very Good
+Iceland,4.6,Iceland,6.16t,6,6,0.5,2.5,661.4kg,Very Good
+Italy,4.6,Italy,5.37t,16,35,31.6,13.4,506.8kg,Very Good
+Latvia,5.4,Latvia,3.47t,14,91,54,17.5,407.2kg,Good
+Lithuania,5.1,Lithuania,3.75t,12,73,34.8,17.8,437.4kg,Good
+Luxembourg,4.7,Luxembourg,14.51t,10,20,33.5,40.9,621.2kg,Very Good
+Netherlands,5,Netherlands,9.23t,12,24,11.2,21.2,520.9kg,Very Good
+Norway,4.5,Norway,6.78t,8,13,33.2,5.1,751.0kg,Very Good
+Poland,5.5,Poland,7.63t,22,69,30.8,38.1,304.9kg,Good
+Slovakia,4.7,Slovakia,5.56t,18,64,40.3,37.6,347.1kg,Very Good
+Slovenia,3.6,Slovenia,6.58t,16,35,62,55.1,463.5kg,Very Good
+Spain,3.8,Spain,5.14t,10,15,36.8,15,444.1kg,Very Good
+Sweden,2.8,Sweden,3.83t,6,0.4,68.9,15,446.5kg,Very Good
+Switzerland,4.3,Switzerland,4.53t,10,18,31.7,9.7,720.8kg,Very Good
+Turkey,6.1,Turkey,4.33t,41,44,15.2,0.2,424.6kg,Very Good
+United Kingdom,4.3,United Kingdom,5.65t,11,26,13,28.8,481.6kg,Very Good
