@@ -34,16 +34,6 @@ The IPCC report signaled a few weeks back how the world's rise in temperature wa
 
 While the pandemic noticeably slowed down general energy consumption, consumption and GDPs of european countries have rebounded back strongly, recovering from the economic shock, although this has brought it's own woes - heavy inflationary trends specially driven by the demand for goods and largely due to energy prices, up by roughly 70% relative to last year.
 
-This trend is increasingly worrying, as some markets are signalling even higher higher spikes [like a 1000% spike since early-pandemic levels in the european gas prices.](https://www.iea.org/data-and-statistics/charts/evolution-of-energy-prices-oct-2020-jan-2022)
-
-However, Europe is still forced to produce energy using fossil fuels, as it has only managed to increase relative renewable production by 4% in the last 3 years to 2021 and its nuclear power capacity stands at less than 6% total energy production as of last year. 
-
-Early 2021 reports, may suggest that some change is ongoing, although slow. In the first half of 2021 the EU-27 is expected to have produced 66% of its electricity consumption from non-fossil fuel sources, dropping coal consumption by 16%, according to this [EMBER REPORT.](https://ember-climate.org/project/european-electricity-review-h1-2021/)
-
-Nonetheless, conflict in Ukraine is not only leading to fossil fuel price rise but possibly also at a rise in the prices of nuclear, as Russia is the biggest exporter of enriched uranium, currently holding 9% of the world's resources.
-
-As gas and oil prices reach historic maxima, Europe is most likely to look back into their own grid and energy supply structures and hopefully speed up investments in fuel alternatives. 
-
 
 ```{r Load data, include=FALSE, message=FALSE}
 #Energy/ electricity production
@@ -157,7 +147,7 @@ elec_years %>% filter(geo== "EU27_2020",TIME_PERIOD >= "2018-01-01",TIME_PERIOD<
 ```
 
 
-```{r warning=FALSE, message=FALSE, echo=FALSE}
+```{r warning=FALSE, message=FALSE, echo=FALSE, fig.cap = "source: eurostat data"}
 ## Combination elec + productions and plotting:
 
 
@@ -220,12 +210,25 @@ plot + annotate("label",
 ```
 
 
+
+This trend is increasingly worrying, as some markets are signalling even higher higher spikes [like a 1000% spike since early-pandemic levels in the european gas prices.](https://www.iea.org/data-and-statistics/charts/evolution-of-energy-prices-oct-2020-jan-2022)
+
+However, Europe is still forced to produce energy using fossil fuels, as it has only managed to increase relative renewable production by 4% in the last 3 years to 2021 and its nuclear power capacity stands at less than 6% total energy production as of last year. 
+
+Early 2021 reports, may suggest that some change is ongoing, although slow. In the first half of 2021 the EU-27 is expected to have produced 66% of its electricity consumption from non-fossil fuel sources, dropping coal consumption by 16%, according to this [EMBER REPORT.](https://ember-climate.org/project/european-electricity-review-h1-2021/)
+
+Nonetheless, conflict in Ukraine is not only leading to fossil fuel price rise but possibly also at a rise in the prices of nuclear, as Russia is the biggest exporter of enriched uranium, currently holding 9% of the world's resources.
+
+As gas and oil prices reach historic maxima, Europe is most likely to look back into their own grid and energy supply structures and hopefully speed up investments in fuel alternatives. 
+
 Electricity is not the only concerning factor in terms of cleaning pollution - it only accounts for a quarter of all energy consumed while petrol, gas and coal make up for the majority of production.
 
 Comparing production, nuclear and coal are mainly used in the electricity production, however fossil fuels still run the majority of transports in Europe and natural gas still heats our homes. The energy transition will not only have to be focused in cleaning the grid but most critically should be sector wide.
 
 
-```{r With electricity as factor, warning=FALSE, message=FALSE, echo= FALSE}
+
+
+```{r with elec, warning=FALSE, message=FALSE, echo=FALSE}
 energy_w_elec<- data.frame(data_prod) %>% 
   filter(geo== "EU27_2020",Fuel!="Total") %>% 
   select(-geo)
@@ -267,7 +270,9 @@ plot_2<-ggplot(prod_clean,aes(x=TIME_PERIOD, y=Consumed/10**6, fill=Fuel)) +
             theme_bw() +
             scale_fill_brewer(palette = "RdYlBu") + 
             theme(axis.text.x = element_text(angle = 45,hjust=1),panel.grid = element_blank())
+```
 
+```{r warning=FALSE, message=FALSE, echo=FALSE, fig.cap = "source: eurostat data"}
 plot_2 + annotate("label",x = c(rep(as.Date("2021-01-01","%Y-%m-%d"),6)),
                    y = c(9,5.2,3,1.5,0.6,0),
                    label = paste(round(preserving_orders$prop.x,3)*100,"%"), color="black", 
@@ -277,6 +282,7 @@ plot_2 + annotate("label",x = c(rep(as.Date("2021-01-01","%Y-%m-%d"),6)),
                    label = paste(sort(round(preserving_orders$prop.y,3)*100,decreasing=TRUE),"%"), color="black", 
                    size=2.5 , fontface="bold")
 ```
+
 
 Some key elements stand out in the make-up of energy production in these economies, for instance whilst Nuclear is seen as a valuable resource in France, Italy has historically shun it. 
 
@@ -302,7 +308,7 @@ summ_elec_2020_s %>% filter(Fuel!= "Total")%>% arrange(desc(Consumed)) %>% mutat
 
 - Production of the 5 largest Euro countries by GDP - Germany, France, Italy, Spain and Poland
 
-```{r warning=FALSE, message=FALSE, echo=FALSE}
+```{r warning=FALSE, message=FALSE, echo=FALSE, fig.cap = "source: eurostat data"}
 
 main_energy_geo <- data.frame(rbind(data_prod %>% 
                    filter(Fuel!="Electricity",Fuel!="Total"), elec_years )) %>% 
@@ -418,7 +424,7 @@ ggplot(em_sec_sec,aes(x=Sectors,y=Consumed))+
 
 
 
-```{r warning=FALSE, message=FALSE, echo=FALSE}
+```{r warning=FALSE, message=FALSE, echo=FALSE, fig.cap = "source: European environment agency"}
 # 1.x.(1,2,3,4) - energy production
 sec_energy_prod<- em_sector %>% filter(Sector_name %in% c("1.A.1 - Energy Industries",
                                                      "1.A.2 - Manufacturing Industries and Construction",
@@ -449,7 +455,7 @@ plot_3.1<- ggplot(sec_energy_prod %>% filter(Country_code=="EUA") ,
 plot_3.1
 ```
 
-```{r  warning=FALSE, message=FALSE, echo=FALSE}
+```{r  warning=FALSE, message=FALSE, echo=FALSE, fig.cap = "source: European environment agency"}
 #   1.3. (a,bi.ii.iii.iv.v,c,d,e) - modes of transportation (specially if it's seen as main pollutant)
 sec_energy_transport<- em_sector %>% filter(Sector_name %in% c("1.A.3.a - Domestic Aviation",
                                                      "1.A.3.b.i - Cars",
@@ -493,7 +499,7 @@ plot_3.2
 
 ```
 
-```{r  warning=FALSE, message=FALSE, echo=FALSE}
+```{r  warning=FALSE, message=FALSE, echo=FALSE, fig.cap = "source: European environment agency"}
 
 
 
@@ -587,7 +593,7 @@ fill_pol_en<-left_join(eur_em  %>%
 ```
 
 
-```{r plotting, warning=FALSE, message=FALSE, echo=FALSE}
+```{r plotting, warning=FALSE, message=FALSE, echo=FALSE, fig.cap = "source: European environment agency"}
 eur = world[world$region %in% c(fill_pol_en$region,"Iceland","Norway","Turkey","Ukraine","Moldova","Belarus"), ] 
 eur <-eur %>% filter(!subregion %in%  c("Jan Mayen","Svalbard"))
 
